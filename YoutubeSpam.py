@@ -2,6 +2,8 @@ import csv
 import re
 import numpy as np
 from pandas import *
+from nltk.stem import PorterStemmer
+from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split
 # CLASSIFIERS
@@ -13,11 +15,13 @@ from sklearn.neighbors import KNeighborsClassifier
 
 def main(filename):
     matrix = matrix_from_file(filename)
-    matrix = clean_and_put_length(matrix)
+    matrix, len_column = clean_and_put_length(matrix)
     ocurrencies, vocabulary, dictionary = bag_of_words(matrix)
+    # insert comment length column
+    # ocurrencies = np.insert(ocurrencies, 0, len_column, axis=1)
     # Separe between train and test (p for params, l for labels)
     (train_p, test_p, train_l, test_l) = (
-        train_test_split(ocurrencies, matrix[:, 2].ravel().tolist()[0], test_size=0.3))
+        train_test_split(ocurrencies, matrix[:, 1].ravel().tolist()[0], test_size=0.3))
 
     # NAIVE BAYES CLASSIFIER
     nb_score = naive_bayes_classifier(train_p, train_l, test_p, test_l)
@@ -40,21 +44,27 @@ def matrix_from_file(filename):
 
 def clean_and_put_length(matrix):
     # Regex to remove unwanted characters
-    regex = re.compile('([^\s\w]|_)+')
+    regex = re.compile('([^\s\w])+')
+    ps = PorterStemmer()
     len_column = []
     # Update matrix after regex replace
     for x in matrix[:, 0]:
         x[0, 0] = regex.sub(' ', x[0, 0])
-        # add comment length column
+        words = word_tokenize(x[0, 0])
+        comment = ""
+        # Clear all words to its stem
+        for w in words:
+            comment = comment + " " + ps.stem(w)
+        x[0, 0] = comment
         len_column.append(len(x[0, 0]))
-    # Transform into numpy array and insert into matrix
+        # add comment length column
+    # Transform into numpy array
     len_column = np.array(len_column)
-    matrix = np.insert(matrix, 0, len_column, axis=1)
-    return matrix
+    return matrix, len_column
 
 # Get ocurrencies of each word
 def bag_of_words(matrix):
-    comment_list = matrix[:, 1]
+    comment_list = matrix[:, 0]
     # Transform into a list with all comments
     corpus = np.concatenate(comment_list).ravel().tolist()[0]
     # Tokenize
