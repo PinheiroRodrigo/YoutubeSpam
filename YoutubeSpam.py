@@ -38,8 +38,8 @@ def matrix_from_file(filename):
     # Remove unused columns
     return matrix[:, 3:]
 
-# Regex to remove unwanted characters
 def clean_and_put_length(matrix):
+    # Regex to remove unwanted characters
     regex = re.compile('([^\s\w]|_)+')
     len_column = []
     # Update matrix after regex replace
@@ -52,7 +52,7 @@ def clean_and_put_length(matrix):
     matrix = np.insert(matrix, 0, len_column, axis=1)
     return matrix
 
-# Get list of the comments
+# Get ocurrencies of each word
 def bag_of_words(matrix):
     comment_list = matrix[:, 1]
     # Transform into a list with all comments
@@ -87,4 +87,4 @@ def knn_classifier(train_p, train_l, test_p, test_l, neighbors):
 #bag_of_words_example()
 
 
-main("Eminen.csv")
+main("Eminem.csv")
