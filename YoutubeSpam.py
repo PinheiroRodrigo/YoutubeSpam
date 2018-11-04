@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 # CLASSIFIERS
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn import tree
 
 # TODO: use length of comments in the models
 
@@ -31,6 +31,8 @@ def main(filename):
     print('KNN-2 had an accuracy of {:.2%}'.format(knn_2_score))
     knn_3_score = knn_classifier(train_p, train_l, test_p, test_l, 3)
     print('KNN-3 had an accuracy of {:.2%}'.format(knn_3_score))
+    cart_score = decisiontree_classifier(train_p, train_l, test_p, test_l)
+    print('Decision Tree had an accuracy of {:.2%}'.format(cart_score))
 
 # Read file and get Matrix
 def matrix_from_file(filename):
@@ -85,6 +87,11 @@ def knn_classifier(train_p, train_l, test_p, test_l, neighbors):
     knn = KNeighborsClassifier(n_neighbors=neighbors)
     knn.fit(train_p, train_l)
     score = knn.score(test_p, test_l)
+    return score
+def decisiontree_classifier(train_p,train_l, test_p, test_l):
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.fit(train_p, train_l)
+    score = clf.score(test_p, test_l)
     return score
 
 # def bag_of_words_example():
