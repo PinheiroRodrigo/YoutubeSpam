@@ -1,6 +1,7 @@
 import csv
 import re
 import numpy as np
+# TOOLS
 from pandas import *
 from nltk.stem import PorterStemmer
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -9,7 +10,10 @@ from sklearn.model_selection import train_test_split
 # CLASSIFIERS
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
-
+from sklearn import tree
+# PLOT
+import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt
 
 # TODO: use length of comments in the models
 
@@ -23,14 +27,25 @@ def main(filename):
     (train_p, test_p, train_l, test_l) = (
         train_test_split(ocurrencies, matrix[:, 1].ravel().tolist()[0], test_size=0.3))
 
-    # NAIVE BAYES CLASSIFIER
-    nb_score = naive_bayes_classifier(train_p, train_l, test_p, test_l)
-    print('NaiveBayes had an accuracy of {:.2%}'.format(nb_score))
-    # KNN CLASSIFIER
     knn_2_score = knn_classifier(train_p, train_l, test_p, test_l, 2)
+    knn_3_score = knn_classifier(train_p, train_l, test_p, test_l, 3)
+    nb_score = naive_bayes_classifier(train_p, train_l, test_p, test_l)
+    cart_score = decisiontree_classifier(train_p, train_l, test_p, test_l)
     print('KNN-2 had an accuracy of {:.2%}'.format(knn_2_score))
     knn_3_score = knn_classifier(train_p, train_l, test_p, test_l, 3)
     print('KNN-3 had an accuracy of {:.2%}'.format(knn_3_score))
+    print('NaiveBayes had an accuracy of {:.2%}'.format(nb_score))
+    print('Decision Tree had an accuracy of {:.2%}'.format(cart_score))
+
+    # PLOT ACCURACIES
+    classifiers = ('KNN-2', 'KNN-3', 'NaiveBayes', 'DecisionTree')
+    y_pos = np.arange(len(classifiers))
+    performance = [knn_2_score*100, knn_3_score*100, nb_score*100, cart_score*100]
+    plt.bar(y_pos, performance, align='center', alpha=0.5)
+    plt.xticks(y_pos, classifiers)
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy by classifier')
+    plt.show()
 
 # Read file and get Matrix
 def matrix_from_file(filename):
@@ -87,14 +102,10 @@ def knn_classifier(train_p, train_l, test_p, test_l, neighbors):
     score = knn.score(test_p, test_l)
     return score
 
-# def bag_of_words_example():
-#     corpus = ["all my cats", "really good cats"]
-#     cv = CountVectorizer()
-#     ocurrencies = cv.fit_transform(corpus).todense()
-#     vocabulary = cv.vocabulary_
-#     print(vocabulary)
-#     print(ocurrencies)
-#bag_of_words_example()
-
+def decisiontree_classifier(train_p,train_l, test_p, test_l):
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.fit(train_p, train_l)
+    score = clf.score(test_p, test_l)
+    return score
 
 main("Eminem.csv")
