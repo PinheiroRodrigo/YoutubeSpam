@@ -21,6 +21,7 @@ def main(filename):
     matrix = matrix_from_file(filename)
     matrix, len_column = clean_and_put_length(matrix)
     ocurrencies, vocabulary, dictionary = bag_of_words(matrix)
+    print(get_most_used_words(ocurrencies, vocabulary, 5))
     # insert comment length column
     # ocurrencies = np.insert(ocurrencies, 0, len_column, axis=1)
     # Separe between train and test (p for params, l for labels)
@@ -32,7 +33,6 @@ def main(filename):
     nb_score = naive_bayes_classifier(train_p, train_l, test_p, test_l)
     cart_score = decisiontree_classifier(train_p, train_l, test_p, test_l)
     print('KNN-2 had an accuracy of {:.2%}'.format(knn_2_score))
-    knn_3_score = knn_classifier(train_p, train_l, test_p, test_l, 3)
     print('KNN-3 had an accuracy of {:.2%}'.format(knn_3_score))
     print('NaiveBayes had an accuracy of {:.2%}'.format(nb_score))
     print('Decision Tree had an accuracy of {:.2%}'.format(cart_score))
@@ -89,6 +89,12 @@ def bag_of_words(matrix):
     vocabulary = cv.vocabulary_
     dictionary = cv.get_feature_names()
     return ocurrencies, vocabulary, dictionary
+
+def get_most_used_words(ocurrencies, vocabulary, n=None):
+    sum_words = ocurrencies.sum(axis=0)
+    words_freq = [(word, sum_words[0, idx]) for word, idx in vocabulary.items()]
+    words_freq =sorted(words_freq, key = lambda x: x[1], reverse=True)
+    return words_freq[:n]
 
 def naive_bayes_classifier(train_p, train_l, test_p, test_l):
     clf = MultinomialNB()
