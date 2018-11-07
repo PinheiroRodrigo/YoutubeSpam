@@ -7,6 +7,7 @@ from nltk.stem import PorterStemmer
 from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
 # CLASSIFIERS
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -15,13 +16,13 @@ from sklearn import tree
 import matplotlib.pyplot as plt; plt.rcdefaults()
 import matplotlib.pyplot as plt
 
-# TODO: use length of comments in the models
-
 def main(filename):
     matrix = matrix_from_file(filename)
     matrix, len_column = clean_and_put_length(matrix)
     ocurrencies, vocabulary, dictionary = bag_of_words(matrix)
+    print("Most used words")
     print(get_most_used_words(ocurrencies, vocabulary, 5))
+    print("---------------------------")
     # insert comment length column
     # ocurrencies = np.insert(ocurrencies, 0, len_column, axis=1)
     # Separe between train and test (p for params, l for labels)
@@ -100,18 +101,30 @@ def naive_bayes_classifier(train_p, train_l, test_p, test_l):
     clf = MultinomialNB()
     clf.fit(train_p, train_l)
     score = clf.score(test_p, test_l)
+    y_pred = clf.predict(test_p)
+    print("NaiveBayes Confusion Matrix")
+    print(confusion_matrix(test_l, y_pred))
+    print("---------------------------")
     return score
 
 def knn_classifier(train_p, train_l, test_p, test_l, neighbors):
     knn = KNeighborsClassifier(n_neighbors=neighbors)
     knn.fit(train_p, train_l)
     score = knn.score(test_p, test_l)
+    y_pred = knn.predict(test_p)
+    print("KNN-%s Confusion Matrix" % neighbors)
+    print(confusion_matrix(test_l, y_pred))
+    print("---------------------------")
     return score
 
 def decisiontree_classifier(train_p,train_l, test_p, test_l):
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(train_p, train_l)
     score = clf.score(test_p, test_l)
+    y_pred = clf.predict(test_p)
+    print("Decision Tree Confusion Matrix")
+    print(confusion_matrix(test_l, y_pred))
+    print("---------------------------")
     return score
 
 main("Eminem.csv")
